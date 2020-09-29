@@ -262,6 +262,7 @@ func getNamespace(service string) (string, error) {
 		"tgw":                   "AWS/TransitGateway",
 		"tgwa":                  "AWS/TransitGateway",
 		"vpn":                   "AWS/VPN",
+		"dx":                    "AWS/DX",
 	}
 	if ns, ok = namespaces[service]; !ok {
 		return "", errors.New("Not implemented namespace for cloudwatch metric: " + service)
@@ -490,6 +491,9 @@ func detectDimensionsByService(resource *tagsData, fullMetricsList *cloudwatch.L
 	case "kafka":
 		cluster := strings.Split(arnParsed.Resource, "/")[1]
 		dimensions = append(dimensions, buildDimension("Cluster Name", cluster))
+	case "dx":
+		dimensions = buildBaseDimension(arnParsed.Resource, "ConnectionId", "dxcon/")
+		dimensions = append(dimensions, buildDimension("VirtualInterfaceId", arnParsed.AccountID))
 	default:
 		log.Fatal("Not implemented cloudwatch metric: " + service)
 	}
